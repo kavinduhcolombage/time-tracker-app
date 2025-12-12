@@ -1,11 +1,12 @@
 import './App.css'
+import Login from './pages/Login'
 
 function App() {
 
   return (
     <>
-    <div>
-      <div>Time Tracker</div>
+    <div className='p-5 flex flex-col min-h-screen'>
+      <Login/>
     </div>
       
     </>
