@@ -13,8 +13,9 @@ const Login = () => {
             const result = await signInWithEmailAndPassword(auth, email, password);
             console.log(result);
             navigate("/dashboard");
-        } catch (error) {
-            console.log("error :  ", error);
+        } catch (error: any) {
+            console.error("Auth Error Code:", error.code);
+            console.error("Auth Error Message:", error.message);
         }
     }
 
@@ -33,7 +34,7 @@ const Login = () => {
             </div>
             <button className="bg-blue-500 text-white px-4 py-2 rounded cursor-pointer hover:bg-blue-800" onClick={handleLogin}>Login</button>
 
-            <p>Don't have an account <span onClick={()=>navigate("/signup")} className="text-blue-500 cursor-pointer hover:text-blue-600 hover:underline">Create Account</span></p>
+            <p>Don't have an account <span onClick={() => navigate("/signup")} className="text-blue-500 cursor-pointer hover:text-blue-600 hover:underline">Create Account</span></p>
         </div>
     )
 }
