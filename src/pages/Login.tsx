@@ -1,17 +1,19 @@
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { useState } from "react"
 import { auth } from "../firebase/firebaseConfig";
+import { useNavigate } from "react-router-dom";
 
 const Login = () => {
     const [email, setEmial] = useState("");
     const [password, setPassword] = useState("");
+    const navigate = useNavigate();
 
     const handleLogin = async () => {
         try {
-            await signInWithEmailAndPassword(auth, email, password);
-            console.log("button clicked");
+            const result = await signInWithEmailAndPassword(auth, email, password);
+            console.log(result);
         } catch (error) {
-            console.log("error", error);
+            console.log("error :  ", error);
         }
     }
 
@@ -28,8 +30,9 @@ const Login = () => {
                 <div>Password:</div>
                 <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} className="border p-1" />
             </div>
-
             <button className="bg-blue-500 text-white px-4 py-2 rounded cursor-pointer hover:bg-blue-800" onClick={handleLogin}>Login</button>
+
+            <p>Don't have an account <span onClick={()=>navigate("/signup")} className="text-blue-500 cursor-pointer hover:text-blue-600 hover:underline">Create Account</span></p>
         </div>
     )
 }
