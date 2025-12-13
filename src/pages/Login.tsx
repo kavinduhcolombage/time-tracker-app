@@ -12,6 +12,7 @@ const Login = () => {
         try {
             const result = await signInWithEmailAndPassword(auth, email, password);
             console.log(result);
+            navigate("/dashboard");
         } catch (error) {
             console.log("error :  ", error);
         }
