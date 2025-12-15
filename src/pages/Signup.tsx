@@ -1,7 +1,8 @@
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom"
-import { auth } from "../firebase/firebaseConfig";
+import { auth, db } from "../firebase/firebaseConfig";
+import { doc, serverTimestamp, setDoc } from "firebase/firestore";
 
 const Signup = () => {
     const navigate = useNavigate();
@@ -10,7 +11,12 @@ const Signup = () => {
 
     const handleSignup = async () => {
         try {
-            await createUserWithEmailAndPassword(auth, email, password);
+            const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+            const user = userCredential.user;
+            await setDoc(doc(db, "users", user.uid), {
+                email: user.email,
+                createdAt: serverTimestamp()
+            });
             navigate("/login");
         } catch (error) {
             console.log("error :  ", error);
