@@ -1,6 +1,6 @@
-import { useContext, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { AuthContext } from "../context/AuthContext";
-import { addDoc, collection, serverTimestamp } from "firebase/firestore";
+import { addDoc, collection, limit, onSnapshot, orderBy, query, serverTimestamp } from "firebase/firestore";
 import { db } from "../firebase/firebaseConfig";
 
 const TaskForm = () => {
@@ -30,7 +30,7 @@ const TaskForm = () => {
       await addDoc(collection(db, "users", currentUser.uid, "tasks"),
         {
           description,
-          startTIme: getDateAndTime(startTime),
+          startTime: getDateAndTime(startTime),
           endTime: getDateAndTime(endTime),
           createdAt: serverTimestamp()
         });
@@ -70,8 +70,26 @@ const TaskForm = () => {
     setEndTimeError(value ? (valid ? "" : "End time must be after start time") : "End time needed");
   }
 
+  useEffect(() => {
+    if (!currentUser) return;
+
+    const q = query(
+      collection(db, "users", currentUser.uid, "tasks"),
+      orderBy("startTime", "desc"),
+      limit(1)
+    );
+    const unsubscribe = onSnapshot(q, snapshot => {
+      if (!snapshot.empty) {
+        const lastTask = snapshot.docs[0].data();
+        console.log("Last task added: ", lastTask);
+        setStartTime(lastTask.endTime.toDate().toTimeString().slice(0, 5));
+      }
+    });
+    return () => unsubscribe();
+  }, []);
+
   return (
-    <form onSubmit={addTask} className="space-y-4">
+    <form onSubmit={addTask} className="">
       <div className="flex gap-5 px-2 max-[600px]:flex-col max-[600px]:gap-1">
         <div className="w-1/2 max-[600px]:w-full">
           <label className="block text-sm font-medium mb-1">
@@ -115,13 +133,11 @@ const TaskForm = () => {
           </div>
         </div>
       </div>
-
-
-      <div className="flex justify-end">
+      <div className="flex justify-end px-1 py-3">
         <button
           type="submit"
           disabled={loading}
-          className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50"
+          className="px-4 py-2 max-[400px]:px-3 max-[400px]:py-1 bg-indigo-600 text-white rounded-2xl hover:bg-blue-700 disabled:opacity-50 max-[500px]:w-full"
         >
           {loading ? "Saving..." : "Add Task"}
         </button>
