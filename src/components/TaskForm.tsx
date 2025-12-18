@@ -19,11 +19,11 @@ const TaskForm = () => {
     e.preventDefault();
     setLoading(true);
     if (!currentUser) return;
-    if(!description || !startTime || !endTime){
+    if (!description || !startTime || !endTime) {
       setLoading(false);
-      if(!description) setDescriptionError("Description needed");
-      if(!startTime) setStartTimeError("Start time needed");
-      if(!endTime) setEndTimeError("End time needed");
+      if (!description) setDescriptionError("Description needed");
+      if (!startTime) setStartTimeError("Start time needed");
+      if (!endTime) setEndTimeError("End time needed");
       return;
     }
     try {
@@ -72,56 +72,61 @@ const TaskForm = () => {
 
   return (
     <form onSubmit={addTask} className="space-y-4">
-      <div>
-        <label className="block text-sm font-medium mb-1">
-          Task Description
-        </label>
-        <input
-          type="text"
-          value={description}
-          onChange={onDescriptionChnage}
-          className="w-full border rounded px-3 py-2"
-          placeholder="What are you working on?"
-        />
-        {descriptionError && <p className="text-red-500 text-sm">{descriptionError}</p>}
-
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div>
+      <div className="flex gap-5 px-2 max-[600px]:flex-col max-[600px]:gap-1">
+        <div className="w-1/2 max-[600px]:w-full">
           <label className="block text-sm font-medium mb-1">
-            Start Time
+            Task Description
           </label>
           <input
-            type="time"
-            value={startTime}
-            onChange={onStartTimeChange}
+            type="text"
+            value={description}
+            onChange={onDescriptionChnage}
             className="w-full border rounded px-3 py-2"
+            placeholder="What are you working on?"
           />
-          {startTimeError && <p className="text-red-500 text-sm">{startTimeError}</p>}
+          {descriptionError && <p className="text-red-500 text-sm">{descriptionError}</p>}
         </div>
 
-        <div>
-          <label className="block text-sm font-medium mb-1">
-            End Time
-          </label>
-          <input
-            type="time"
-            value={endTime}
-            onChange={onEndTimeChange}
-            className="w-full border rounded px-3 py-2"
-          />
-          {endTimeError && <p className="text-red-500 text-sm">{endTimeError}</p>}
+        <div className="flex gap-4 w-1/2 max-[600px]:w-full">
+          <div className="w-1/2">
+            <label className="block text-sm font-medium mb-1">
+              Start Time
+            </label>
+            <input
+              type="time"
+              value={startTime}
+              onChange={onStartTimeChange}
+              className="w-full border rounded px-3 py-2"
+            />
+            {startTimeError && <p className="text-red-500 text-sm">{startTimeError}</p>}
+          </div>
+
+          <div className="w-1/2">
+            <label className="block text-sm font-medium mb-1">
+              End Time
+            </label>
+            <input
+              type="time"
+              value={endTime}
+              onChange={onEndTimeChange}
+              className="w-full border rounded px-3 py-2"
+            />
+            {endTimeError && <p className="text-red-500 text-sm">{endTimeError}</p>}
+          </div>
         </div>
       </div>
 
-      <button
-        type="submit"
-        disabled={loading}
-        className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50"
-      >
-        {loading ? "Saving..." : "Add Task"}
-      </button>
+
+      <div className="flex justify-end">
+        <button
+          type="submit"
+          disabled={loading}
+          className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50"
+        >
+          {loading ? "Saving..." : "Add Task"}
+        </button>
+      </div>
+
     </form>
   )
 }
