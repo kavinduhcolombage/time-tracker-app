@@ -1,15 +1,77 @@
-import { useState } from "react";
+import { useContext, useState } from "react";
+import { AuthContext } from "../context/AuthContext";
+import { addDoc, collection, serverTimestamp } from "firebase/firestore";
+import { db } from "../firebase/firebaseConfig";
 
 const TaskForm = () => {
-    const [description, setDescription] = useState("");
+  const [description, setDescription] = useState("");
+  const [descriptionError, setDescriptionError] = useState("");
   const [startTime, setStartTime] = useState("");
+  const [startTimeError, setStartTimeError] = useState("");
   const [endTime, setEndTime] = useState("");
+  const [endTimeError, setEndTimeError] = useState("");
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
-  return (
-    <form onSubmit={()=>{console.log("Form submitted")}} className="space-y-4">
-      {error && <p className="text-red-500">{error}</p>}
+  const auth = useContext(AuthContext);
+  if (!auth) return null;
+  const { currentUser } = auth;
 
+  const addTask = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    if (!currentUser) return;
+    if(!description || !startTime || !endTime){
+      setLoading(false);
+      if(!description) setDescriptionError("Description needed");
+      if(!startTime) setStartTimeError("Start time needed");
+      if(!endTime) setEndTimeError("End time needed");
+      return;
+    }
+    try {
+      await addDoc(collection(db, "users", currentUser.uid, "tasks"),
+        {
+          description,
+          startTIme: getDateAndTime(startTime),
+          endTime: getDateAndTime(endTime),
+          createdAt: serverTimestamp()
+        });
+      setDescription("");
+      setStartTime("");
+      setEndTime("");
+      setLoading(false);
+
+    } catch (error) {
+      console.log("Error adding task: ", error);
+    }
+  }
+
+  const getDateAndTime = (timeStr: string) => {
+    const [hours, minutes] = timeStr.split(":").map(Number);
+    const now = new Date();
+    now.setHours(hours, minutes, 0, 0);
+    return now;
+  }
+
+  const onDescriptionChnage = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setDescription(value);
+    setDescriptionError(value ? "" : "Description needed");
+  }
+
+  const onStartTimeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setStartTime(value);
+    setStartTimeError(value ? "" : "Start time needed");
+  }
+
+  const onEndTimeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setEndTime(value);
+    const valid = getDateAndTime(value) > getDateAndTime(startTime);
+    setEndTimeError(value ? (valid ? "" : "End time must be after start time") : "End time needed");
+  }
+
+  return (
+    <form onSubmit={addTask} className="space-y-4">
       <div>
         <label className="block text-sm font-medium mb-1">
           Task Description
@@ -17,10 +79,12 @@ const TaskForm = () => {
         <input
           type="text"
           value={description}
-          onChange={(e) => setDescription(e.target.value)}
+          onChange={onDescriptionChnage}
           className="w-full border rounded px-3 py-2"
           placeholder="What are you working on?"
         />
+        {descriptionError && <p className="text-red-500 text-sm">{descriptionError}</p>}
+
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -29,11 +93,12 @@ const TaskForm = () => {
             Start Time
           </label>
           <input
-            type="datetime-local"
+            type="time"
             value={startTime}
-            onChange={(e) => setStartTime(e.target.value)}
+            onChange={onStartTimeChange}
             className="w-full border rounded px-3 py-2"
           />
+          {startTimeError && <p className="text-red-500 text-sm">{startTimeError}</p>}
         </div>
 
         <div>
@@ -41,11 +106,12 @@ const TaskForm = () => {
             End Time
           </label>
           <input
-            type="datetime-local"
+            type="time"
             value={endTime}
-            onChange={(e) => setEndTime(e.target.value)}
+            onChange={onEndTimeChange}
             className="w-full border rounded px-3 py-2"
           />
+          {endTimeError && <p className="text-red-500 text-sm">{endTimeError}</p>}
         </div>
       </div>
 
