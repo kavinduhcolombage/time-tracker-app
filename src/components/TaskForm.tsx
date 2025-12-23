@@ -1,6 +1,6 @@
 import { useContext, useEffect, useState } from "react";
 import { AuthContext } from "../context/AuthContext";
-import { addDoc, collection, limit, onSnapshot, orderBy, query, serverTimestamp } from "firebase/firestore";
+import { addDoc, collection, limit, onSnapshot, orderBy, query, serverTimestamp, where } from "firebase/firestore";
 import { db } from "../firebase/firebaseConfig";
 
 const TaskForm = () => {
@@ -70,18 +70,32 @@ const TaskForm = () => {
     setEndTimeError(value ? (valid ? "" : "End time must be after start time") : "End time needed");
   }
 
+  const getTodayRange = () => {
+    const start = new Date();
+    start.setHours(0, 0, 0, 0);
+
+    const end = new Date(start);
+    end.setDate(end.getDate() + 1);
+
+    return { start, end };
+  };
+
+
   useEffect(() => {
     if (!currentUser) return;
 
+    const { start, end } = getTodayRange();
+
     const q = query(
       collection(db, "users", currentUser.uid, "tasks"),
+      where("startTime", ">=", start),
+      where("startTime", "<", end),
       orderBy("startTime", "desc"),
       limit(1)
     );
     const unsubscribe = onSnapshot(q, snapshot => {
       if (!snapshot.empty) {
         const lastTask = snapshot.docs[0].data();
-        console.log("Last task added: ", lastTask);
         setStartTime(lastTask.endTime.toDate().toTimeString().slice(0, 5));
       }
     });
