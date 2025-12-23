@@ -35,7 +35,7 @@ const Dashboard = () => {
   
   return (
     <div className="min-h-screen bg-gray-100 py-10 px-50 max-[900px]:px-30 max-[800px]:px-15 max-[650px]:px-5">
-      <div className="max-w-6xl mx-auto space-y-6">
+      <div className="max-w-6xl mx-auto space-y-6 max-[400px]:space-y-2">
 
         {/* Header */}
         <header className="flex items-center justify-between bg-indigo-500 p-4 rounded shadow">
